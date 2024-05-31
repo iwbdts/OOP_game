@@ -5,9 +5,10 @@ class SpriteManager():
         self.sprite_files = os.listdir("sprites/")
         self.sprites = {}
         for name in self.sprite_files:
-            self.sprites[name] = SpriteManager.load_sprite(name)
+            # name.txt
+            self.sprites[name] = self.load_sprite(name)
 
-    def load_sprite(self,file_name):
+    def load_sprite(self, file_name):
         with open("sprites/" + file_name, 'r') as file:
             lines = file.readlines()
         lines = [line.rstrip('\n') for line in lines]
@@ -17,3 +18,4 @@ class SpriteManager():
 
     def get(self, name):
         return self.sprites[name]
+
