@@ -1,4 +1,18 @@
 import random
+from spritemanager import SpriteManager
+PRESSED_KEYS = {}
+
+def on_press(key):
+    try:
+        PRESSED_KEYS[key.char] = True
+    except AttributeError:
+        PRESSED_KEYS[key] = True
+
+def on_release(key):
+    try:
+        PRESSED_KEYS[key.char] = False
+    except AttributeError:
+        PRESSED_KEYS[key] = False
 
 
 class GameObject:
@@ -7,12 +21,12 @@ class GameObject:
         self.pos_y = y
         self.height = len(sprite)
         self.width = len(sprite[0])
-        self.sprite = sprite
+        self.sprite = SpriteManager().get(sprite)
 
 
 class DestroyableObject(GameObject):
     def __init__(self, hp, x, y, sprite):
-        GameObject.__init__(self,x, y, sprite)
+        GameObject.__init__(self, x, y, sprite)
         self.hp = hp
 
     def destroy_self(self):
@@ -24,60 +38,33 @@ class DestroyableObject(GameObject):
             self.destroy_self()
 
 
-class Asteroid(DestroyableObject):
-    def __init__(self, x, y, sprite):
-        DestroyableObject.__init__(self,5, x, y, sprite)
+class ControllableObject:
+    def __init__(self, x, y, controls):
+        self.pos_x = x
+        self.pos_y = y
+        self.controls = controls
+        self.next_pos_x = x
+        self.next_pos_y = y
 
-
-class Weapon():
-    def __init__(self, x, y, damage, coff, visible):
-        self.damage = damage
-        self.shot_cooloff = coff
-        self.x_pos = x
-        self.y_pos = y
-        self.visible = visible
-
-    def shoot_weapon(self):
-        if self.shot_cooloff <= 0:
-            bullet = Bullet(self.x_pos, self.y_pos, self.damage)
-
-
-class InitWeapon(Weapon):
-    def __init__(self, x, y, visible):
-        Weapon.__init__(self, x, y, 1, 3, visible)
-
-
-class FasterWeapon(Weapon):
-    def __init__(self, x, y, visible):
-        Weapon.__init__(self, x, y, 1, 2, visible)
-
-
-class StrongerWeapon(Weapon):
-    def __init__(self, x, y, visible):
-        Weapon.__init__(self, x, y, 2, 4, visible)
-
-
-class Bullet(DestroyableObject):
-    def __init__(self, x, y, sprite, damage):
-        DestroyableObject.__init__(self,5, x, y, sprite)
-        self.damage = damage
-
-    def on_collision(self, game_obj):
-        game_obj.receive_damage(self.damage)
+    def next_move(self):
+        if self.controls[2] in PRESSED_KEYS and PRESSED_KEYS[self.controls[2]]:
+            self.next_pos_x = self.pos_x - 3
+        if self.controls[3] in PRESSED_KEYS and PRESSED_KEYS[self.controls[3]]:
+            self.next_pos_x = self.pos_x + 3
 
 
 class Plane(DestroyableObject):
     def __init__(self, hp, x, y, sprite):
         DestroyableObject.__init__(self, hp, x, y, sprite)
-        self.weapon = InitWeapon(x, y, False)
 
     def shoot(self):
         pass
 
 
-class PlayerPlane(Plane):
-    def __init__(self, x, y, sprite):
+class PlayerPlane(Plane, ControllableObject):
+    def __init__(self, x, y, sprite, controls = "wsad"):
         Plane.__init__(self, 20, x, y, sprite)
+        ControllableObject.__init__(self, x, y, controls)
 
 
 class EnemyPlane(Plane):

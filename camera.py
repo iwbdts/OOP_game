@@ -1,37 +1,45 @@
-from spritemanager import SpriteManager
+import colorama
+
+CURSOR_UP = "\033[A"
+CLEAR_SCREEN = "\033[2J\033[H"
+
 
 class Camera:
-    def __init__(self, gamestate, height, width):
+    def __init__(self, gamestate):
         self.game_state = gamestate
-        self.height = height
-        self.width = width
-        self.viewport = [[" " for _ in range(width)] for _ in range(height)]
+        self.height = gamestate.screen_height
+        self.width = gamestate.screen_width
+        self.viewport = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.update_view()
+        self.BACKGROUND_COLOR = colorama.Back.CYAN
+
+    def clear(self):
+        self.viewport = [[" " for _ in range(self.width)] for _ in range(self.height)]
 
     def update_view(self):
+        self.clear()
+        self.game_state.update_positions()
         objs = self.game_state.game_objects
         for obj in objs:
             y = obj.pos_y
             x = obj.pos_x
-            sprite = SpriteManager().get(obj.sprite)
-            if y - len(sprite) < self.height:
-                for line in sprite:
-                    y -=1
-                    for i in range(len(line)):
-                        if x + i < self.width:
-                            self.viewport[self.height-y][x+i] = line[i]
+            sprite = obj.sprite
+
+            for line in sprite:
+                y -= 1
+                for i in range(len(line)):
+                    if x + i < self.width and self.height - y >= 1 and self.height - y <= 59:
+                        if i == 0:
+                            self.viewport[self.height - y - 1][x + i] = " "
+                        self.viewport[self.height - y][x + i] = line[i]
 
     def display_view(self):
-        for i in range(len(self.viewport)):
-            line = self.viewport[i]
-            print(i, end="")
-            for j in range(len(line)):
-                print(line[j], end="")
-            print()
-
-# h
-# ^
-# |
-# |
-# |---------->
-# 0          w
+        ROW_START = self.BACKGROUND_COLOR
+        ROW_END = colorama.Style.RESET_ALL
+        self.update_view()
+        view = CURSOR_UP * self.height
+        for line in self.viewport:
+            view += "".join(line) + "\n"
+        # lines = ["".join(line) for line in self.viewport]
+        # view = "\n".join(lines) + "\n"
+        print(ROW_START + view + "\r" + "press s to slay      " + ROW_END, end="")
