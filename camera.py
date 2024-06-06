@@ -11,7 +11,7 @@ class Camera:
         self.width = gamestate.screen_width
         self.viewport = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.update_view()
-        self.BACKGROUND_COLOR = colorama.Back.CYAN
+        self.BACKGROUND_COLOR = colorama.Back.BLUE
 
     def clear(self):
         self.viewport = [[" " for _ in range(self.width)] for _ in range(self.height)]
@@ -40,6 +40,4 @@ class Camera:
         view = CURSOR_UP * (2*self.height)
         for line in self.viewport:
             view += "".join(line) + "\n"
-        # lines = ["".join(line) for line in self.viewport]
-        # view = "\n".join(lines) + "\n"
-        print(ROW_START + view + "\r" + "press s to slay      " + ROW_END, end="")
+        print(ROW_START + view + ROW_END, end="")

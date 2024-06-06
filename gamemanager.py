@@ -1,10 +1,12 @@
-from gameobjects import ControllableObject, GameObject
-
+from gameobjects import ControllableObject, DestroyableObject, GameObject, PlayerPlane
+from spritemanager import SpriteManager
 
 class GameState:
     def __init__(self):
         self.game_objects = []
         self.game_started = False
+        self.game_over = False
+        self.game_completed = False
         self.game_finished = False
         self.screen_height = 60
         self.screen_width = 80
@@ -32,37 +34,51 @@ class GameState:
 
     def colliding_objects(self, object):
         res = []
-        with open("output.txt", "a") as f:
-            print("CALLED IS_COLLIDING FOR", object.name, file=f)
-            for obj in self.game_objects:
-                if self.are_colliding(object, obj):
-                    res.append(obj)
-                else:
-                    print("NO COLLISION BETWEEN ",
-                          object.name, "(", object.pos_x, ", ", object.pos_y, ") ", object.height, object.width,
-                          " and ",
-                          obj.name, "(", obj.pos_x, ", ", object.pos_y, ")", obj.height, obj.width, file=f)
-
-            print(object.name, res, file=f)
+        for obj in self.game_objects:
+            if self.are_colliding(object, obj):
+                res.append(obj)
 
         return res
 
+    # def end_game(self):
+    #     for player in players:
+    #         if self.game_over == True:
+    #             game_over_sprite = SpriteManager().get("game_over_text.txt")
+
+
     def update_positions(self):
         self.time += 1
-        for obj in self.game_objects:
+        with open("output.txt", "a") as f:
+            for obj in self.game_objects:
+                colliding = []
+                if isinstance(obj, PlayerPlane):
+                    if obj.player_down:
+                        self.game_over == True
+                        self.game_finished == True
+                        print("Player down", obj.name, file=f)
 
-            if isinstance(obj, GameObject):
-                if isinstance(obj, ControllableObject):
-                    obj.next_move()
-                    next_x, next_y = obj.next_pos_x, obj.next_pos_y
-                    if obj.pos_x != obj.next_pos_x or obj.pos_y != obj.next_pos_y:
-                        if next_x >= 0 and next_x + obj.width < self.screen_width:
-                            obj.pos_x, obj.pos_y = next_x, next_y
+                if isinstance(obj, DestroyableObject):
+                    if obj.destroyed and obj.vanished:
+                        self.game_objects.remove(obj)
+                        print("Destroyed ", obj.name, file=f)
+                    if obj.destroyed:
+                        obj.vanish_self()
+                        print("Vanished ", obj.name, file=f)
 
-                else:
-                    if len(self.colliding_objects(obj)) == 0:
-                        with open("output.txt", "a") as f:
-                            print("NO COLLISION!!!", file=f)
-                        if obj.movable:
+                if isinstance(obj, GameObject):
+                    if isinstance(obj, ControllableObject):
+                        obj.next_move()
+                        next_x, next_y = obj.next_pos_x, obj.next_pos_y
+                        if obj.pos_x != obj.next_pos_x or obj.pos_y != obj.next_pos_y:
+                            if next_x >= 0 and next_x + obj.width < self.screen_width:
+                                obj.pos_x, obj.pos_y = next_x, next_y
+
+                    else:
+                        colliding = self.colliding_objects(obj)
+                        if len(colliding) == 0:
                             obj.pos_y -= 1
-                    
+
+                if isinstance(obj, DestroyableObject):
+                    for col_obj in colliding:
+                        obj.on_collision_with(col_obj)
+                        print(obj.name, " on collision with ", col_obj.name, file = f)
