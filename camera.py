@@ -37,7 +37,7 @@ class Camera:
         ROW_START = self.BACKGROUND_COLOR
         ROW_END = colorama.Style.RESET_ALL
         self.update_view()
-        view = CURSOR_UP * self.height
+        view = CURSOR_UP * (2*self.height)
         for line in self.viewport:
             view += "".join(line) + "\n"
         # lines = ["".join(line) for line in self.viewport]

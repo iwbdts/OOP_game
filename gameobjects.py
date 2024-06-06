@@ -17,11 +17,13 @@ def on_release(key):
 
 class GameObject:
     def __init__(self, x, y, sprite):
+        self.name = ""
         self.pos_x = x
         self.pos_y = y
-        self.height = len(sprite)
-        self.width = len(sprite[0])
         self.sprite = SpriteManager().get(sprite)
+        self.height = len(self.sprite)
+        self.width = len(self.sprite[0])
+        self.movable = True
 
 
 class DestroyableObject(GameObject):
@@ -65,8 +67,10 @@ class PlayerPlane(Plane, ControllableObject):
     def __init__(self, x, y, sprite, controls = "wsad"):
         Plane.__init__(self, 20, x, y, sprite)
         ControllableObject.__init__(self, x, y, controls)
+        self.name = "player_plane"
 
 
 class EnemyPlane(Plane):
     def __init__(self, x, y, sprite):
         Plane.__init__(self, random.randint(5, 15), x, y, sprite)
+        self.name = "enemy_plane"
