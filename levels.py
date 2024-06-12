@@ -4,7 +4,7 @@ from gamemanager import GameState
 
 def level1():
     game = GameState()
-    player = PlayerPlane(30,10, "player_plane1.txt")
+    player = PlayerPlane(30, 10, "player_plane1.txt")
     game.add_object(player)
 
     enemy_planes = [(10, 60), (10, 120), (50, 80)]

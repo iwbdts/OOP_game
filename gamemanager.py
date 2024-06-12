@@ -1,5 +1,6 @@
-from gameobjects import ControllableObject, DestroyableObject, GameObject, PlayerPlane
+from gameobjects import ControllableObject, DestroyableObject, GameObject, PlayerPlane, PlayerBullet, EnemyBullet, EnemyPlane
 from spritemanager import SpriteManager
+
 
 class GameState:
     def __init__(self):
@@ -45,7 +46,6 @@ class GameState:
     #         if self.game_over == True:
     #             game_over_sprite = SpriteManager().get("game_over_text.txt")
 
-
     def update_positions(self):
         self.time += 1
         with open("output.txt", "a") as f:
@@ -53,9 +53,15 @@ class GameState:
                 colliding = []
                 if isinstance(obj, PlayerPlane):
                     if obj.player_down:
-                        self.game_over == True
-                        self.game_finished == True
+                        self.game_over = True
+                        # self.game_finished = True
                         print("Player down", obj.name, file=f)
+                    if obj.can_shoot():
+                        self.add_object(PlayerBullet(obj.pos_x + obj.width//2  ,obj.pos_y + 5))
+
+                if isinstance(obj, EnemyPlane):
+                    if obj.can_shoot():
+                        self.add_object(EnemyBullet(obj.pos_x + obj.width // 2, obj.pos_y - 7))
 
                 if isinstance(obj, DestroyableObject):
                     if obj.destroyed and obj.vanished:
@@ -73,6 +79,11 @@ class GameState:
                             if next_x >= 0 and next_x + obj.width < self.screen_width:
                                 obj.pos_x, obj.pos_y = next_x, next_y
 
+                    elif isinstance(obj, PlayerBullet):
+                        colliding = self.colliding_objects(obj)
+                        if len(colliding) == 0:
+                            obj.pos_y += 1
+
                     else:
                         colliding = self.colliding_objects(obj)
                         if len(colliding) == 0:
@@ -81,4 +92,4 @@ class GameState:
                 if isinstance(obj, DestroyableObject):
                     for col_obj in colliding:
                         obj.on_collision_with(col_obj)
-                        print(obj.name, " on collision with ", col_obj.name, file = f)
+                        print(obj.name, " on collision with ", col_obj.name, file=f)

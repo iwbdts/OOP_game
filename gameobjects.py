@@ -1,6 +1,8 @@
 import random
 from spritemanager import SpriteManager
+
 PRESSED_KEYS = {}
+
 
 def on_press(key):
     try:
@@ -8,13 +10,12 @@ def on_press(key):
     except AttributeError:
         PRESSED_KEYS[key] = True
 
+
 def on_release(key):
     try:
         PRESSED_KEYS[key.char] = False
     except AttributeError:
         PRESSED_KEYS[key] = False
-
-
 
 
 class GameObject:
@@ -45,7 +46,7 @@ class DestroyableObject(GameObject):
                 self.hp = 0
                 self.destroy_self()
             with open("output.txt", "a") as f:
-                print("Hp after collision ", self.name, self.hp, obj.name, obj.hp )
+                print("Hp after collision ", self.name, self.hp, obj.name, obj.hp, file=f)
 
     def destroy_self(self):
         self.destroyed = True
@@ -81,17 +82,23 @@ class Plane(DestroyableObject):
     def __init__(self, hp, x, y, sprite):
         DestroyableObject.__init__(self, hp, x, y, sprite)
         self.player_down = False
+        self.default_cooloff = self.cooloff = 15
 
-    def shoot(self):
-        pass
 
     def destroy_self(self):
         self.player_down = True
-        super().destroy_self( )
+        super().destroy_self()
+
+    def can_shoot(self):
+        if self.cooloff == 0:
+            self.cooloff = self.default_cooloff
+            return True
+        self.cooloff -= 1
+        return False
 
 
 class PlayerPlane(Plane, ControllableObject):
-    def __init__(self, x, y, sprite, controls = "wsad"):
+    def __init__(self, x, y, sprite, controls="wsad"):
         Plane.__init__(self, 30, x, y, sprite)
         ControllableObject.__init__(self, x, y, controls)
         self.name = "player_plane"
@@ -102,7 +109,14 @@ class EnemyPlane(Plane):
         Plane.__init__(self, random.randint(5, 15), x, y, sprite)
         self.name = "enemy_plane"
 
-class Bullet(DestroyableObject):
-    def __init__(self, hp, x, y, sprite):
-        DestroyableObject.__init__(self, hp, x, y, sprite)
-        self.name = "bullet"
+
+class PlayerBullet(DestroyableObject):
+    def __init__(self, x, y, sprite="player_bullet.txt"):
+        DestroyableObject.__init__(self, 5, x, y, sprite)
+        self.name = "player_bullet"
+
+
+class EnemyBullet(DestroyableObject):
+    def __init__(self, x, y, sprite="enemy_bullet.txt"):
+        DestroyableObject.__init__(self, 5, x, y, sprite)
+        self.name = "enemy_bullet"

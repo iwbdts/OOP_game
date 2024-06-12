@@ -18,5 +18,4 @@ if __name__ == "__main__":
         # print(PRESSED_KEYS)
         time.sleep(0.1)
 
-
     listener_thread.join()

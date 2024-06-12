@@ -1,5 +1,6 @@
 import os
 
+
 class SpriteManager():
     def __init__(self):
         self.sprite_files = os.listdir("sprites/")
@@ -18,4 +19,3 @@ class SpriteManager():
 
     def get(self, name):
         return self.sprites[name]
-
