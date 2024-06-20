@@ -1,4 +1,5 @@
-from gameobjects import ControllableObject, DestroyableObject, GameObject, PlayerPlane, PlayerBullet, EnemyBullet, EnemyPlane
+from gameobjects import ControllableObject, DestroyableObject, GameObject, PlayerPlane, PlayerBullet, EnemyBullet, \
+    EnemyPlane
 from spritemanager import SpriteManager
 
 
@@ -7,11 +8,11 @@ class GameState:
         self.game_objects = []
         self.game_started = False
         self.game_over = False
-        self.game_completed = False
-        self.game_finished = False
+        self.game_won = False
         self.screen_height = 60
         self.screen_width = 80
         self.time = 0
+        self.enemies = 20
 
     def add_object(self, object):
         self.game_objects.append(object)
@@ -41,55 +42,56 @@ class GameState:
 
         return res
 
-    # def end_game(self):
-    #     for player in players:
-    #         if self.game_over == True:
-    #             game_over_sprite = SpriteManager().get("game_over_text.txt")
-
     def update_positions(self):
         self.time += 1
-        with open("output.txt", "a") as f:
-            for obj in self.game_objects:
-                colliding = []
-                if isinstance(obj, PlayerPlane):
-                    if obj.player_down:
-                        self.game_over = True
-                        # self.game_finished = True
-                        print("Player down", obj.name, file=f)
-                    if obj.can_shoot():
-                        self.add_object(PlayerBullet(obj.pos_x + obj.width//2  ,obj.pos_y + 5))
+        for obj in self.game_objects:
+            colliding = []
+            if isinstance(obj, PlayerPlane):
+                if obj.player_down:
+                    self.game_over = True
+                if obj.can_shoot():
+                    self.add_object(PlayerBullet(obj.pos_x + obj.width // 2 - 2, obj.pos_y + 5))
 
-                if isinstance(obj, EnemyPlane):
-                    if obj.can_shoot():
-                        self.add_object(EnemyBullet(obj.pos_x + obj.width // 2, obj.pos_y - 7))
+            if isinstance(obj, EnemyPlane):
+                if obj.can_shoot() and obj.pos_x < self.screen_width and obj.pos_y < self.screen_height:
+                    self.add_object(EnemyBullet(obj.pos_x + obj.width // 2 -1, obj.pos_y - 7))
+                if obj.pos_y < 10:
+                    obj.destroy_self()
+                    self.enemies -= 1
 
-                if isinstance(obj, DestroyableObject):
-                    if obj.destroyed and obj.vanished:
-                        self.game_objects.remove(obj)
-                        print("Destroyed ", obj.name, file=f)
-                    if obj.destroyed:
-                        obj.vanish_self()
-                        print("Vanished ", obj.name, file=f)
+            if isinstance(obj, DestroyableObject):
+                if obj.destroyed and obj.vanished:
+                    self.game_objects.remove(obj)
+                if obj.destroyed:
+                    obj.vanish_self()
+                    if isinstance(obj, EnemyPlane):
+                        self.enemies -= 1
 
-                if isinstance(obj, GameObject):
-                    if isinstance(obj, ControllableObject):
-                        obj.next_move()
-                        next_x, next_y = obj.next_pos_x, obj.next_pos_y
-                        if obj.pos_x != obj.next_pos_x or obj.pos_y != obj.next_pos_y:
-                            if next_x >= 0 and next_x + obj.width < self.screen_width:
-                                obj.pos_x, obj.pos_y = next_x, next_y
+            if isinstance(obj, GameObject):
+                if isinstance(obj, ControllableObject):
+                    obj.next_move()
+                    next_x, next_y = obj.next_pos_x, obj.next_pos_y
+                    if obj.pos_x != obj.next_pos_x or obj.pos_y != obj.next_pos_y:
+                        if next_x >= 0 and next_x + obj.width < self.screen_width:
+                            obj.pos_x, obj.pos_y = next_x, next_y
 
-                    elif isinstance(obj, PlayerBullet):
-                        colliding = self.colliding_objects(obj)
-                        if len(colliding) == 0:
-                            obj.pos_y += 1
+                elif isinstance(obj, PlayerBullet):
+                    if obj.pos_y >= self.screen_height + obj.height:
+                        obj.destroy_self()
+                    colliding = self.colliding_objects(obj)
+                    if len(colliding) == 0:
+                        obj.pos_y += 1
 
-                    else:
-                        colliding = self.colliding_objects(obj)
-                        if len(colliding) == 0:
-                            obj.pos_y -= 1
+                else:
+                    colliding = self.colliding_objects(obj)
+                    if len(colliding) == 0:
+                        obj.pos_y -= 1
 
-                if isinstance(obj, DestroyableObject):
-                    for col_obj in colliding:
-                        obj.on_collision_with(col_obj)
-                        print(obj.name, " on collision with ", col_obj.name, file=f)
+
+
+            if isinstance(obj, DestroyableObject):
+                for col_obj in colliding:
+                    obj.on_collision_with(col_obj)
+
+            if not any(isinstance(obj, EnemyPlane) for obj in self.game_objects):
+                self.game_won = True

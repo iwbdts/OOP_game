@@ -13,9 +13,18 @@ if __name__ == "__main__":
     listener_thread = threading.Thread(target=listener.start)
     listener_thread.start()
 
-    while not game.game_finished:
+
+    while True:
+        if "s" in PRESSED_KEYS and PRESSED_KEYS["s"]:
+            game.game_started = True
+
+        if "r" in PRESSED_KEYS and PRESSED_KEYS["r"]:
+            game, player = level1()
+            camera = Camera(game)
+
+        if "q" in PRESSED_KEYS and PRESSED_KEYS["q"]:
+            break
         camera.display_view()
-        # print(PRESSED_KEYS)
         time.sleep(0.1)
 
     listener_thread.join()

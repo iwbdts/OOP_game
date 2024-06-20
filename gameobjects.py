@@ -26,7 +26,7 @@ class GameObject:
         self.sprite = SpriteManager().get(sprite)
         self.height = len(self.sprite)
         self.width = len(self.sprite[0])
-        self.movable = True
+
 
 
 class DestroyableObject(GameObject):
@@ -45,8 +45,7 @@ class DestroyableObject(GameObject):
             if self.hp <= 0:
                 self.hp = 0
                 self.destroy_self()
-            with open("output.txt", "a") as f:
-                print("Hp after collision ", self.name, self.hp, obj.name, obj.hp, file=f)
+
 
     def destroy_self(self):
         self.destroyed = True
@@ -82,7 +81,8 @@ class Plane(DestroyableObject):
     def __init__(self, hp, x, y, sprite):
         DestroyableObject.__init__(self, hp, x, y, sprite)
         self.player_down = False
-        self.default_cooloff = self.cooloff = 15
+        self.default_cooloff = 10
+        self.cooloff = random.randint(0,15)
 
 
     def destroy_self(self):
@@ -99,7 +99,7 @@ class Plane(DestroyableObject):
 
 class PlayerPlane(Plane, ControllableObject):
     def __init__(self, x, y, sprite, controls="wsad"):
-        Plane.__init__(self, 30, x, y, sprite)
+        Plane.__init__(self, 40, x, y, sprite)
         ControllableObject.__init__(self, x, y, controls)
         self.name = "player_plane"
 
