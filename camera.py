@@ -11,7 +11,6 @@ class Camera:
         self.game_state = gamestate
         self.height = gamestate.screen_height
         self.width = gamestate.screen_width
-        # self.clean_viewport = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.viewport = [[" " for _ in range(self.width)] for _ in range(self.height)]
         self.BACKGROUND_COLOR = colorama.Back.BLUE
         self.game_over_sprite = SpriteManager().get("game_over_text.txt")
@@ -22,14 +21,16 @@ class Camera:
         self.game_over_screen = self.load_game_over_screen()
         self.game_won_screen = self.load_game_won_screen()
 
-
-
     def clear(self):
         self.viewport = [[" " for _ in range(self.width)] for _ in range(self.height)]
 
     def load_game_over_screen(self):
-        game_over_screen = [[" " for _ in range(self.width)] for _ in range(self.height)]
-        sprite_width, sprite_height = len(self.game_over_sprite[0]), len(self.game_over_sprite)
+        game_over_screen = [
+            [" " for _ in range(self.width)] for _ in range(self.height)
+        ]
+        sprite_width, sprite_height = len(self.game_over_sprite[0]), len(
+            self.game_over_sprite
+        )
         i = self.width // 2 - sprite_width // 2
         j = self.height // 2 - sprite_height // 2
         if sprite_width % 2 == 1:
@@ -43,8 +44,12 @@ class Camera:
         return game_over_screen
 
     def load_start_game_screen(self):
-        start_game_screen = [[" " for _ in range(self.width)] for _ in range(self.height)]
-        sprite_width, sprite_height = len(self.start_game_sprite[0]), len(self.start_game_sprite)
+        start_game_screen = [
+            [" " for _ in range(self.width)] for _ in range(self.height)
+        ]
+        sprite_width, sprite_height = len(self.start_game_sprite[0]), len(
+            self.start_game_sprite
+        )
         i = self.width // 2 - sprite_width // 2
         j = self.height // 2 - sprite_height // 2
         if sprite_width % 2 == 1:
@@ -59,7 +64,9 @@ class Camera:
 
     def load_game_won_screen(self):
         game_won_screen = [[" " for _ in range(self.width)] for _ in range(self.height)]
-        sprite_width, sprite_height = len(self.game_won_sprite[0]), len(self.game_won_sprite)
+        sprite_width, sprite_height = len(self.game_won_sprite[0]), len(
+            self.game_won_sprite
+        )
         i = self.width // 2 - sprite_width // 2
         j = self.height // 2 - sprite_height // 2
         if sprite_width % 2 == 1:
@@ -95,7 +102,11 @@ class Camera:
                 for line in sprite:
                     y -= 1
                     for i in range(len(line)):
-                        if x + i < self.width and self.height - y >= 1 and self.height - y <= 59:
+                        if (
+                            x + i < self.width
+                            and self.height - y >= 1
+                            and self.height - y <= 59
+                        ):
                             if i == 0:
                                 self.viewport[self.height - y - 1][x + i] = " "
                             self.viewport[self.height - y][x + i] = line[i]

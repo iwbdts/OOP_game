@@ -1,5 +1,12 @@
-from gameobjects import ControllableObject, DestroyableObject, GameObject, PlayerPlane, PlayerBullet, EnemyBullet, \
-    EnemyPlane
+from gameobjects import (
+    ControllableObject,
+    DestroyableObject,
+    GameObject,
+    PlayerPlane,
+    PlayerBullet,
+    EnemyBullet,
+    EnemyPlane,
+)
 from spritemanager import SpriteManager
 
 
@@ -24,11 +31,9 @@ class GameState:
         if obj1 == obj2:
             return False
 
-        # Calculate the boundaries of both objects
         left1, right1, top1, bottom1 = x1, x1 + width1, y1 - height1, y1
         left2, right2, top2, bottom2 = x2, x2 + width2, y2 - height2, y2
 
-        # Check if the rectangles overlap
         if right1 >= left2 and left1 <= right2 and bottom1 >= top2 and top1 <= bottom2:
             return True
 
@@ -50,11 +55,19 @@ class GameState:
                 if obj.player_down:
                     self.game_over = True
                 if obj.can_shoot():
-                    self.add_object(PlayerBullet(obj.pos_x + obj.width // 2 - 2, obj.pos_y + 5))
+                    self.add_object(
+                        PlayerBullet(obj.pos_x + obj.width // 2 - 2, obj.pos_y + 5)
+                    )
 
             if isinstance(obj, EnemyPlane):
-                if obj.can_shoot() and obj.pos_x < self.screen_width and obj.pos_y < self.screen_height:
-                    self.add_object(EnemyBullet(obj.pos_x + obj.width // 2 -1, obj.pos_y - 7))
+                if (
+                    obj.can_shoot()
+                    and obj.pos_x < self.screen_width
+                    and obj.pos_y < self.screen_height
+                ):
+                    self.add_object(
+                        EnemyBullet(obj.pos_x + obj.width // 2 - 1, obj.pos_y - 7)
+                    )
                 if obj.pos_y < 10:
                     obj.destroy_self()
                     self.enemies -= 1
@@ -86,8 +99,6 @@ class GameState:
                     colliding = self.colliding_objects(obj)
                     if len(colliding) == 0:
                         obj.pos_y -= 1
-
-
 
             if isinstance(obj, DestroyableObject):
                 for col_obj in colliding:

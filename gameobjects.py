@@ -28,7 +28,6 @@ class GameObject:
         self.width = len(self.sprite[0])
 
 
-
 class DestroyableObject(GameObject):
     def __init__(self, hp, x, y, sprite):
         GameObject.__init__(self, x, y, sprite)
@@ -45,7 +44,6 @@ class DestroyableObject(GameObject):
             if self.hp <= 0:
                 self.hp = 0
                 self.destroy_self()
-
 
     def destroy_self(self):
         self.destroyed = True
@@ -82,8 +80,7 @@ class Plane(DestroyableObject):
         DestroyableObject.__init__(self, hp, x, y, sprite)
         self.player_down = False
         self.default_cooloff = 10
-        self.cooloff = random.randint(0,15)
-
+        self.cooloff = random.randint(0, 15)
 
     def destroy_self(self):
         self.player_down = True

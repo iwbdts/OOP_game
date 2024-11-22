@@ -13,7 +13,6 @@ if __name__ == "__main__":
     listener_thread = threading.Thread(target=listener.start)
     listener_thread.start()
 
-
     while True:
         if "s" in PRESSED_KEYS and PRESSED_KEYS["s"]:
             game.game_started = True
